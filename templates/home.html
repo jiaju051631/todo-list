@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<head>
+    <title>Todo-List</title>
+</head>
+<body>
+  <h2>Welcome to Todo-List</h2><br>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flash">
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  {% if current_user.is_authenticated %}
+    {% set username = current_user.username.split('_') %}
+    You are logged in as {{ username[0] }}
+    <br>
+    <br>
+    <a href="{{ url_for('logout') }}">Log out</a>
+  {% else %}
+    You are not logged in.<br>
+    <li><a href="{{ url_for('google.login') }}">Log in with Google</a></li>
+    <li><a href="{{ url_for('github.login') }}">Log in with Github</a></li>
+    <li><a href="{{ url_for('facebook.login') }}">Log in with Facebook</a></li>
+    {% endif %}
+</body>
