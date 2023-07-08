@@ -17,13 +17,6 @@ os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = config.OAUTHLIB_INSECURE_TRANSPORT
 app = Flask(__name__)
 app.config.from_pyfile('config.py', silent=True)
 
-# Link the database
-db.init_app(app)
-
-with app.app_context():
-    db.create_all()
-    print("Database tables created")
-
 # Link the login_manager
 login_manager.init_app(app)
 
@@ -32,6 +25,22 @@ app.register_blueprint(google_blueprint, url_prefix="/google_login")
 app.register_blueprint(github_blueprint, url_prefix="/github_login")
 app.register_blueprint(facebook_blueprint, url_prefix="/facebook_login")
 app.register_blueprint(task_blueprint, url_prefix="/task")
+
+
+def create_production_app():
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
+    return app
+
+
+def create_test_app():
+    app.config['TESTING'] = True
+    app.config["SQLALCHEMY_DATABASE_URI"] = config.SQLALCHEMY_TEST_DATABASE_URI
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
+    return app
 
 
 # Homepage
@@ -49,4 +58,5 @@ def logout():
 
 
 if __name__ == "__main__":
+    create_production_app()
     app.run(ssl_context=(config.SSL_CERT, config.SSL_KEY))
