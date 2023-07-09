@@ -1,0 +1,12 @@
+version: '3.3'
+services:
+    todo-list:
+        ports:
+            - 5000:5000
+        container_name: todo-list
+        volumes:
+            - sqlite:/todo-list/instance
+        image: todo-list:0.1
+volumes:
+    sqlite:
+        driver: local
