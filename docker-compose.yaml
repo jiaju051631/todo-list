@@ -6,7 +6,7 @@ services:
         container_name: todo-list
         volumes:
             - sqlite:/todo-list/instance
-        image: todo-list:0.1
+        image: jiaju051631/todo-list:0.1
 volumes:
     sqlite:
         driver: local

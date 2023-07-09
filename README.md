@@ -28,7 +28,7 @@ Data is stored in an SQLite database with the following design:
 2. Download the ``docker-compose.yaml`` file from [GitHub](https://github.com/jiaju051631/todo-list)
 3. Start the service with the Docker Compose file
     ```Docker
-    docker-compose -f docker-compose.yaml up -d
+    docker compose -f docker-compose.yaml up -d
     ```
 4. Access the application at https://127.0.0.1:5000 on your host
 
