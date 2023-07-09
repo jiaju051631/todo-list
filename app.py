@@ -59,4 +59,8 @@ def logout():
 
 if __name__ == "__main__":
     create_production_app()
-    app.run(ssl_context=(config.SSL_CERT, config.SSL_KEY))
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        ssl_context=(config.SSL_CERT, config.SSL_KEY)
+    )
