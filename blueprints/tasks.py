@@ -24,21 +24,41 @@ def validate_access_token(request):
         raise Exception("Access denied: Invalid access token.")
 
 
+# Get existing task item(s) from database
+## IF task_id is provided, get the specific task item
+## ELSE return all task items
+def get_tasks(task_id=None):
+    if current_user.is_authenticated:
+        if task_id:
+            return Task.query.filter_by(id=task_id, user_id=current_user.id).first()
+        return current_user.task
+    else:
+        oauth = validate_access_token(request)
+        user = oauth.user
+        if task_id:
+            return Task.query.filter_by(id=task_id, user_id=user.id).first()
+        return user.task
+
+
+# Create a new task items 
+## IF user is logged in, link the new task to the user
+## ELSE validate the access token before linking the new task to the user
+def create_task(task_name):
+    task = Task(task_name=task_name) 
+    if current_user.is_authenticated:
+        task.user = current_user
+    else:
+        oauth = validate_access_token(request)
+        task.user = oauth.user
+    return task
+
+
 # REST API: Add a Todo item
 @bp.route("/add/<task_name>", methods=["POST"])
 def add_task(task_name):
     try:
-        # IF user is logged in, create a new task item
-        # ELSE validate the access token before creating a new task item
-        if current_user.is_authenticated:
-            task = Task(task_name=task_name)
-            task.user = current_user
-        else:
-            oauth = validate_access_token(request)
-            task = Task(task_name=task_name) 
-            task.user = oauth.user
-
         # Add the new item
+        task = create_task(task_name)
         db.session.add(task)
         db.session.commit()
         return "TODO item is successfully added."
@@ -50,15 +70,7 @@ def add_task(task_name):
 @bp.route("/delete/<int:task_id>", methods=["DELETE"])
 def delete_task(task_id):
     try:
-        # IF user is logged in, query the task item
-        # ELSE validate the access token before querying the task item
-        if current_user.is_authenticated:
-            task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()
-        else:
-            oauth = validate_access_token(request)
-            task = Task.query.filter_by(id=task_id, user_id=oauth.user_id).first()
-
-        # Delete the item found
+        task = get_tasks(task_id)
         if task:
             db.session.delete(task)
             db.session.commit()
@@ -73,15 +85,7 @@ def delete_task(task_id):
 @bp.route("/list", methods=["GET"])
 def list_task():
     try:
-        # IF user is logged in, query the task items
-        # ELSE validate the access token before querying the task items
-        if current_user.is_authenticated:
-            tasks = Task.query.filter_by(user_id=current_user.id).all()
-        else:
-            oauth = validate_access_token(request)
-            tasks = Task.query.filter_by(user_id=oauth.user_id).all()
-
-        # Display the items
+        tasks = get_tasks()
         if tasks:
             task_list = "List of TODO items:\n\n"
             for task in tasks:
@@ -103,16 +107,7 @@ def list_task():
 @bp.route("/mark-complete/<int:task_id>", methods=["PUT"])
 def mark_task_complete(task_id):
     try:
-        # IF user is logged in, query the task item
-        # ELSE validate the access token before querying the task item
-        if current_user.is_authenticated:
-            task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()
-        else:
-            # If user is not logged in, but an access token is provided
-            oauth = validate_access_token(request)
-            task = Task.query.filter_by(id=task_id, user_id=oauth.user_id).first()
-        
-        # Mark the task as complete
+        task = get_tasks(task_id)
         if task:
             task.completed = 1
             db.session.commit()
@@ -121,4 +116,3 @@ def mark_task_complete(task_id):
             raise Exception(f"Item {task_id} is not found in your records.")
     except Exception as e:
         return f"Failed to mark the TODO item as complete - {str(e)}"
-
