@@ -1,3 +1,5 @@
+import ast
+
 from flask import Blueprint, request
 from flask_login import current_user
 
@@ -18,10 +20,10 @@ def validate_access_token(request):
         ).first()
 
         if not oauth:
-            raise Exception("Access denied: Invalid access token.")
+            raise Exception("Access denied: Invalid access token.", 403)
         return oauth
     else:
-        raise Exception("Access denied: Invalid access token.")
+        raise Exception("Access denied: Invalid access token.", 403)
 
 
 # Get existing task item(s) from database
@@ -53,6 +55,17 @@ def create_task(task_name):
     return task
 
 
+# Get the error message and HTTP status code for error handling
+def get_error_details(info, error):
+    error = ast.literal_eval(error)
+    message = f"{info} - {error[0]}"
+    if (len(error) == 2):
+        status_code = error[1]
+    else:
+        status_code = 500
+    return message, status_code
+
+
 # REST API: Add a Todo item
 @bp.route("/add/<task_name>", methods=["POST"])
 def add_task(task_name):
@@ -61,9 +74,9 @@ def add_task(task_name):
         task = create_task(task_name)
         db.session.add(task)
         db.session.commit()
-        return "TODO item is successfully added."
+        return "TODO item is successfully added.", 200
     except Exception as e:
-        return f"Failed to add the TODO item - {str(e)}"
+        return get_error_details("Failed to add the TODO item", str(e))
 
 
 # REST API: Delete a Todo item
@@ -74,11 +87,11 @@ def delete_task(task_id):
         if task:
             db.session.delete(task)
             db.session.commit()
-            return f"TODO item {task_id} is successfully deleted."
+            return f"TODO item {task_id} is successfully deleted.", 200
         else:
-            raise Exception(f"Item {task_id} is not found in your records.")
+            raise Exception(f"Item {task_id} is not found in your records.", 404)
     except Exception as e:
-        return f"Failed to delete the TODO item - {str(e)}"
+        return get_error_details("Failed to delete the TODO item", str(e))
 
 
 # REST API: List all Todo items
@@ -96,11 +109,11 @@ def list_task():
                     dict_task['created_on'],
                     dict_task['completed']
                 )
-            return task_list
+            return task_list, 200
         else:
-            raise Exception("No task found in your records.")
+            raise Exception("No task found in your records.", 404)
     except Exception as e:
-        return f"Failed to list the TODO items - {str(e)}"
+        return get_error_details("Failed to list the TODO items", str(e))
 
 
 # # REST API: Mark a Todo item as complete
@@ -111,8 +124,8 @@ def mark_task_complete(task_id):
         if task:
             task.completed = 1
             db.session.commit()
-            return f"TODO item {task_id} is successfully marked as complete."
+            return f"TODO item {task_id} is successfully marked as complete.", 200
         else:
-            raise Exception(f"Item {task_id} is not found in your records.")
+            raise Exception(f"Item {task_id} is not found in your records.", 404)
     except Exception as e:
-        return f"Failed to mark the TODO item as complete - {str(e)}"
+        return get_error_details("Failed to mark the TODO item as complete", str(e))
