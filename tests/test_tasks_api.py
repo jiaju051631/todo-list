@@ -28,7 +28,7 @@ def test_add_task_invalid_token(client, add_and_delete_task):
         base_url="https://127.0.0.1:5000",
         headers={"Authorization": f"Bearer {INVALID_ACCESS_TOKEN}"}
     )
-    assert response.status_code == 200
+    assert response.status_code == 403
     assert "Failed to add the TODO item" in response.text
     assert "Access denied: Invalid access token" in response.text
 
@@ -53,7 +53,7 @@ def test_delete_task_invalid_token(client, add_and_delete_task):
         base_url="https://127.0.0.1:5000",
         headers={"Authorization": f"Bearer {INVALID_ACCESS_TOKEN}"}
     )
-    assert response.status_code == 200
+    assert response.status_code == 403
     assert "Failed to delete the TODO item" in response.text
     assert "Access denied: Invalid access token" in response.text
 
@@ -77,7 +77,7 @@ def test_list_task_invalid_token(client, add_and_delete_task):
         base_url="https://127.0.0.1:5000",
         headers={"Authorization": f"Bearer {INVALID_ACCESS_TOKEN}"}
     )
-    assert response.status_code == 200
+    assert response.status_code == 403
     assert "Failed to list the TODO items" in response.text
     assert "Access denied: Invalid access token" in response.text
 
@@ -103,7 +103,7 @@ def test_mark_complete_invalid_token(client, add_and_delete_task):
         base_url="https://127.0.0.1:5000",
         headers={"Authorization": f"Bearer {INVALID_ACCESS_TOKEN}"}
     )
-    assert response.status_code == 200
+    assert response.status_code == 403
     assert "Failed to mark the TODO item as complete" in response.text
     assert "Access denied: Invalid access token" in response.text
 
