@@ -23,7 +23,7 @@ Data is stored in an SQLite database with the following design:
 ### 1.1 Running with Docker
 1. Download the Docker image from Docker Hub
     ```Docker
-    docker pull jiaju051631/todo-list:0.1
+    docker pull jiaju051631/todo-list
     ```
 2. Download the ``docker-compose.yaml`` file from [GitHub](https://github.com/jiaju051631/todo-list)
 3. Start the service with the Docker Compose file
@@ -62,19 +62,13 @@ Test result:
 ### 2.1 Testing with Docker
 1. Start a container with the image 
     ```Docker
-    docker run -d -p 5000:5000 --name "todo-list" jiaju051631/todo-list:0.1
+    docker run -d -p 5000:5000 --name "todo-list" jiaju051631/todo-list
     ```
 2. Run the container in the interactive mode
     ```Docker
     docker exec -it todo-list /bin/sh
     ```
-3. In the `/todo-list` directory, create a Python virtual environment. Activate it and install all dependencies
-    ```Python
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
-4. Execute the test cases using pytest
+3. In the `/todo-list` directory, execute the test cases using pytest
     ```Python
     pytest -v 
     ```
@@ -94,7 +88,7 @@ Test result:
     ```
     Example:
     ```Docker
-    docker build -t todo-list:0.1 ./todo-list
+    docker build -t todo-list:0.2 ./todo-list
     ```
 2. Check the image built
     ```Docker
